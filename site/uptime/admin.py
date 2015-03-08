@@ -1,7 +1,7 @@
 from django.contrib import admin
-from models import Target, Ping, Uptime
+from . import models
 
 # Register your models here.
-admin.site.register(Target)
-admin.site.register(Ping)
-admin.site.register(Uptime)
+admin.site.register(models.Target)
+admin.site.register(models.Ping)
+admin.site.register(models.Uptime)

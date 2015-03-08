@@ -13,8 +13,10 @@ import os
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 ## celery
-import djcelery
-djcelery.setup_loader()
+#import djcelery
+#djcelery.setup_loader()
+CELERY_ACCEPT_CONTENT = ['json', 'msgpack', 'yaml']
+CELERY_TASK_SERIALIZER='json'
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.6/howto/deployment/checklist/
@@ -52,6 +54,9 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
 
+CELERY_RESULT_BACKEND = 'djcelery.backends.database:DatabaseBackend'
+CELERYBEAT_SCHEDULER = 'djcelery.schedulers.DatabaseScheduler'
+
 ROOT_URLCONF = 'do_track_site.urls'
 
 WSGI_APPLICATION = 'do_track_site.wsgi.application'
@@ -66,6 +71,10 @@ DATABASES = {
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
+
+TEMPLATE_DIRS = (
+    'templates'
+    )
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.6/topics/i18n/
@@ -85,3 +94,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.6/howto/static-files/
 
 STATIC_URL = '/static/'
+STATICFILES_DIRS = (
+        os.path.join(BASE_DIR, "static"),
+        )
+

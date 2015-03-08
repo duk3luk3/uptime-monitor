@@ -8,7 +8,8 @@ class Target(models.Model):
   hostname = models.CharField(max_length=512)
   description = models.CharField(max_length=512)
   auto_ping = models.BooleanField()
-  ping_task = models.OneToOneField(PeriodicTask, blank=True, null=True)
+  pingtask = models.OneToOneField(PeriodicTask, blank=True, null=True, related_name="pingtask")
+  coalescetask = models.OneToOneField(PeriodicTask, blank=True, null=True, related_name="coalescetask")
 
   def __unicode__(self):
     return "%s (%s)" % (self.hostname, self.description)
@@ -21,23 +22,41 @@ class Target(models.Model):
         if len(tasks) >= 1:
           self.ping_task = tasks[0]
         else:
-          interval = IntervalSchedule.objects.filter(pk=1)
-          if len(interval) < 1:
-            interval = IntervalSchedule(every=10,period='seconds')
-            interval.save()
+          ping_interval = IntervalSchedule.objects.filter(every=10,period='seconds')
+          if len(ping_interval) < 1:
+            ping_interval = IntervalSchedule(every=10,period='seconds')
+            ping_interval.save()
           else:
-            interval = interval[0]
+            ping_interval = interval[0]
           
-          self.ping_task = PeriodicTask(
+          coalesce_interval = IntervalSchedule.objects.filter(every=5,period='minutes')
+          if len(coalesce_interval) < 1:
+            coalesce_interval = IntervalSchedule(every=10,period='minutes')
+            coalesce_interval.save()
+          else:
+            coalesce_interval = interval[0]
+          
+          self.pingtask = PeriodicTask(
               name = self.hostname + " Auto Ping",
               task = "uptime.tasks.ping",
-              interval = interval,
+              interval = ping_interval,
               args = [self.id],
               enabled = True,
               description = "Auto Ping for " + self.description
               )
-          self.ping_task.save()
+          self.coalescetask = PeriodicTask(
+              name = self.hostname + " Uptime Coalesce",
+              task = "uptime.tasks.coalesce",
+              interval = coalesce_interval,
+              args = [self.id],
+              enabled = True,
+              description = "Coalescer for " + self.description
+              )
+
+          self.pingtask.save()
+          self.coalescetask.save()
         self.save()
+
 
 class Uptime(models.Model):
   target = models.ForeignKey(Target)
@@ -57,7 +76,7 @@ class Uptime(models.Model):
     successful_count = successful_pings.count()
     ping_average = successful_pings.aggregate(models.Avg('time'))['time__avg']
     uptime_fraction = float(successful_count) / ping_count
-    return Uptime(target=target,interval_start=interval_start,interval_end=interval_end,ping_average=ping_average,uptime_fraction=uptime_fraction)
+    return Uptime(target=target,interval_start=interval_start,interval_end=interval_end,ping_average=ping_average,uptime_fraction=uptime_fraction), pings
 
 
 class Ping(models.Model):

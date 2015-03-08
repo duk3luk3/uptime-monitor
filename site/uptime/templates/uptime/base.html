@@ -1,0 +1,31 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<link rel="stylesheet" href="{% static "style.css" %}" />
+    <title>{% block title %}Ping Monitor{% endblock %}</title>
+</head>
+
+<body>
+    <div id="sidebar">
+        {% block sidebar %}
+        <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="{% url 'uptime.views.index' %}">Index</a></li>
+        </ul>
+        <div id="auth_bar">
+          {% if user.is_authenticated %}
+          Hello, {{ user.username }}. <a href="{% url 'django.contrib.auth.views.logout' %}">Log out</a>
+          {% else %}
+          You are not logged in. <a href="{% url 'django.contrib.auth.views.login' %}">Log in</a>
+          {% endif %}
+        </div>
+        {% endblock %}
+    </div>
+
+    <div id="content">
+        {% block content %}{% endblock %}
+    </div>
+
+</body>
+</html>
