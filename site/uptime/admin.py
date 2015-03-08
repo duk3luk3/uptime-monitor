@@ -5,3 +5,4 @@ from . import models
 admin.site.register(models.Target)
 admin.site.register(models.Ping)
 admin.site.register(models.Uptime)
+admin.site.register(models.Group)

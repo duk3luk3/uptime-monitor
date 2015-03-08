@@ -4,12 +4,17 @@ from django.utils import timezone
 from datetime import datetime, timedelta
 from celery import Celery
 
-# Create your models here.
+class Group(models.Model):
+  name = models.CharField(max_length=512)
+
+  def __str__(self):
+    return self.name
 
 class Target(models.Model):
   hostname = models.CharField(max_length=512)
   description = models.CharField(max_length=512)
   auto_ping = models.BooleanField(default=False)
+  group = models.ForeignKey(Group)
 
   def __str__(self):
     return "%s (%s)" % (self.hostname, self.description)

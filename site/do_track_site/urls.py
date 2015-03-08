@@ -3,6 +3,8 @@ from django.views.generic import RedirectView
 from django.core.urlresolvers import reverse_lazy
 from django.contrib import admin
 
+admin.autodiscover()
+
 urlpatterns = patterns('',
     # Examples:
     # url(r'^$', 'do_track_site.views.home', name='home'),
