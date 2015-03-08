@@ -1,9 +1,13 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div>
+<table>
 {% for target in targets %}
-
+<tr>
+<td>{{target.hostname}}</td>
+<td>{{ target.last_ping }}</td>
+<td>{{ target.last_uptime }}</td>
+</tr>
 {% endfor %}
-</div>
+</table>
 {% endblock %}

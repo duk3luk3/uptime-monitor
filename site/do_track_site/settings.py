@@ -10,6 +10,7 @@ https://docs.djangoproject.com/en/1.6/ref/settings/
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
+from datetime import timedelta
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 ## celery
@@ -17,6 +18,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 #djcelery.setup_loader()
 CELERY_ACCEPT_CONTENT = ['json', 'msgpack', 'yaml']
 CELERY_TASK_SERIALIZER='json'
+BROKER_URL = 'amqp://guest:guest@localhost:5672//'
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.6/howto/deployment/checklist/
@@ -42,7 +44,6 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'uptime',
-    'djcelery',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -54,8 +55,18 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
 
-CELERY_RESULT_BACKEND = 'djcelery.backends.database:DatabaseBackend'
-CELERYBEAT_SCHEDULER = 'djcelery.schedulers.DatabaseScheduler'
+CELERY_RESULT_BACKEND = 'db+sqlite:///celery.sqlite'
+
+CELERYBEAT_SCHEDULE = {
+    'ping-task': {
+      'task': 'uptime.tasks.ping',
+      'schedule': timedelta(seconds=1)
+    },
+    'coalesce-task': {
+      'task': 'uptime.tasks.coalesce',
+      'schedule': timedelta(seconds=1)
+    }
+}
 
 ROOT_URLCONF = 'do_track_site.urls'
 
@@ -73,7 +84,7 @@ DATABASES = {
 }
 
 TEMPLATE_DIRS = (
-    'templates'
+    'templates',
     )
 
 # Internationalization
